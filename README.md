@@ -1,10 +1,10 @@
 ## Building the UMCPSEG Plugin
 
-To build the University of Michigan CPSEG (UMCPSEG) plugin you must integrate 
-the UMCPSEG source code into your local PluginSDK installation. These 
-instructions assume you have already downloaded, installed, and 
-[verified][SDKdocs] the [Pointwise Plugin SDK][SDKdownload]. Be sure the SDK you 
-are using is compatible with the version of Pointwise you are targeting.
+To build the University of Michigan Computational Plasma Science and Engineering 
+Group (UMCPSEG) plugin you must integrate the source code from this repository 
+into your local PluginSDK installation. These instructions assume you have 
+already downloaded, installed, and [verified][SDKdocs] the [Pointwise Plugin SDK][SDKdownload]. 
+Be sure the SDK you are using is compatible with the version of Pointwise you are targeting.
 
 To integrate the github UMCPSEG source code, you must first create a plugin 
 project in your SDK using the steps shown below. You may replace `MyUMCPSEG` 
