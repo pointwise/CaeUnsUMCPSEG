@@ -80,7 +80,7 @@ to make your desired changes to the CaeUnsMyUMCPSEG plugin.
 ### Closing Thoughts
 
 In the [How to Create a CAE Plugin][SDKbuild] section, click on the 
-*4. Build the CAE plugin* link for information on configuring your SDK build 
+**4. Build the CAE plugin** link for information on configuring your SDK build 
 environment.
 
 The plugin created above will appear in the Pointwise user interface and in the 
