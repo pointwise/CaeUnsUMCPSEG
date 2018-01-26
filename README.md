@@ -79,8 +79,8 @@ to make your desired changes to the CaeUnsMyUMCPSEG plugin.
 
 ### Closing Thoughts
 
-See the [Building a CAE Plugin][SDKbuild] for information on configuring your 
-SDK build environment.
+Click the [4. Build the CAE plugin][SDKbuild] link for information on configuring 
+your SDK build environment.
 
 The plugin created above will appear in the Pointwise user interface and in the 
 Glyph scripting language using the name 'MyUMCPSEG'. Even though it is 
@@ -101,4 +101,4 @@ your changes and integrate them as appropriate.
 [SDKdownload]: http://www.pointwise.com/plugins/#sdk_downloads
 [SDKdocs]: http://www.pointwise.com/plugins
 [SDKsite.H]: http://www.pointwise.com/plugins/html/d6/d89/site_8h.html
-[SDKbuild]: http://www.pointwise.com/plugins/html/dc/d7e/build_plugin_cae.html
+[SDKbuild]: http://www.pointwise.com/plugins/html/index.html#how_to_create_a_cae_plugin
