@@ -69,8 +69,8 @@ environment.
 
 Unless you have created your own site.h file in your SDK installation, the 
 plugin created above will appear in the Pointwise user interface and in the 
-Glyph scripting language using the name 'PWP_SITE_GROUPNAME/UMCPSEG'. Even 
-though it is functionally equivalent, Pointwise treats it as a different solver.
+Glyph scripting language using the name 'GITHUB/UMCPSEG'. Even though it is 
+functionally equivalent, Pointwise treats it as a different solver.
 
 If you plan on publicly releasing source or binary builds of your version of 
 the UMCPSEG plugin, you need to be careful about your choice of site id, site 
