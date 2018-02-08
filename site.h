@@ -16,10 +16,9 @@
 #   define BUILD_PWPLUGIN_DYNLIB
 #endif
 
-#undef PWP_SITE_GROUPID
-
-#undef PWP_SITE_GROUPNAME
+#if !defined(PWP_SITE_GROUPNAME)
 #define PWP_SITE_GROUPNAME   "GITHUB"
+#endif
 
 #endif
 
