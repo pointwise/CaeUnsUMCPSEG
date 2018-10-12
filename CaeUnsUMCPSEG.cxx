@@ -46,12 +46,12 @@ matIdChar(const MaterialId matId)
 
 
 static MaterialId
-minMatId(const MaterialId id1, const MaterialId id2)
+maxMatId(const MaterialId id1, const MaterialId id2)
 {
     // Ignore zero mat id if a non-zero value is present
     MaterialId ret;
     if ((id1 > 0) && (id2 > 0)) {
-        ret = std::min(id1, id2); // both are >0, min wins.
+        ret = std::max(id1, id2); // both are >0, max wins.
     }
     else if (id1 > 0) {
         ret = id1;
@@ -281,7 +281,8 @@ CaeUnsUMCPSEG::writeNodes()
     //         1         2         3         4
     //1234567890123456789012345678901234567890
     //   7468     4          ***** NODES *****
-    const PWP_UINT32 subType = 4; // indicates a POINTWISE generated file
+    const PWP_UINT32 subType = 5; // indicates a POINTWISE generated file
+    // changed subType to 5 in order for CPSEG to denote read changes
     rtFile_.writef("%7d %5d          ***** NODES *****\n",
         (int)model_.vertexCount(), (int)subType);
 
@@ -643,9 +644,19 @@ CaeUnsUMCPSEG::getIntorEdgeMatAndZone(const PWGM_FACESTREAM_DATA &data,
         getMatAndZone(nbor, nborMatId, nborZoneId);
         isGeomEdge = (nborMatId != matId) || (nborZoneId != zoneId);
         if (isGeomEdge) {
-            // something is different, return lowest ids
-            matId = minMatId(nborMatId, matId);
-            zoneId = std::min(nborZoneId, zoneId);
+            // if material is different, return highest ids
+            // and zone corresponding to higher material id
+            if (nborMatId != matId) {
+                matId = maxMatId(nborMatId, matId);
+                if (matId == nborMatId) {
+                    zoneId = nborZoneId
+                }
+            }
+            // if material is the same and zone is different,
+            // return highest zone id
+            else {
+                zoneId = std::max(nborZoneId, zoneId);
+            }
         }
         mzFromVC = true;
         ret = true;
