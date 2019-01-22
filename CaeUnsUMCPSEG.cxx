@@ -17,6 +17,7 @@
 #include "apiPWP.h"
 #include "runtimeWrite.h"
 #include "pwpPlatform.h"
+#include <iostream>
 
 #include "CaePlugin.h"
 #include "CaeUnsGridModel.h"
@@ -44,32 +45,34 @@ matIdChar(const MaterialId matId)
     return (matId < 0 || matId > 35) ? '?' : idMap[matId];
 }
 
-
-static MaterialId
-maxMatId(const MaterialId id1, const MaterialId id2)
-{
+//
+// >JK: 1/2018: Old function, no longer needed
+// static MaterialId
+// maxMatId(const MaterialId id1, const MaterialId id2)
+// {
     // Ignore zero mat id if a non-zero value is present
-    MaterialId ret;
-    if ((id1 > 0) && (id2 > 0)) {
-        ret = std::max(id1, id2); // both are >0, max wins.
-    }
-    else if (id1 > 0) {
-        ret = id1;
-    }
-    else if (id2 > 0) {
-        ret = id2;
-    }
-    else if (0 == id1) {
-        ret = id1;
-    }
-    else if (0 == id2) {
-        ret = id2;
-    }
-    else {
-        ret = MatUndefined; // not good?
-    }
-    return ret;
-}
+
+//    MaterialId ret;
+//    if ((id1 > 0) && (id2 > 0)) {
+//        ret = std::max(id1, id2); // both are >0, max wins.
+//    }
+//    else if (id1 > 0) {
+//        ret = id1;
+//    }
+//    else if (id2 > 0) {
+//        ret = id2;
+//    }
+//    else if (0 == id1) {
+//        ret = id1;
+//    }
+//    else if (0 == id2) {
+//        ret = id2;
+//    }
+//    else {
+//        ret = MatUndefined; // not good?
+//    }
+//    return ret;
+// }
 
 
 template<typename T>
@@ -647,9 +650,9 @@ CaeUnsUMCPSEG::getIntorEdgeMatAndZone(const PWGM_FACESTREAM_DATA &data,
             // if material is different, return highest ids
             // and zone corresponding to higher material id
             if (nborMatId != matId) {
-                matId = maxMatId(nborMatId, matId);
+                matId = std::max(nborMatId, matId);
                 if (matId == nborMatId) {
-                    zoneId = nborZoneId
+                    zoneId = nborZoneId;
                 }
             }
             // if material is the same and zone is different,
