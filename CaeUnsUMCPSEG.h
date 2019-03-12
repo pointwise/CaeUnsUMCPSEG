@@ -81,11 +81,12 @@ public:
             id_ = id; // capture first positive, nonzero id
             hadConflict_ = true;
         }
-        else if (id < id_) {
+        else if (id > id_) {
             id_ = id; // cature the lowest id
             hadConflict_ = true;
         }
-        else if (id > id_) {
+// >JK: 1/2018 Changing the logic here to have the highest MatId have the ownership
+        else if (id < id_) {
             hadConflict_ = true;
         }
         // else id == id_ // a NOP
