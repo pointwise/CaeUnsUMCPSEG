@@ -2,7 +2,7 @@
  *
  * class CaeUnsUMCPSEG
  *
- * Copyright (c) 2012-2018 Pointwise, Inc.
+ * Copyright (c) 2012-2019 Pointwise, Inc.
  * All rights reserved.
  *
  * This sample Pointwise plugin is not supported by Pointwise, Inc.
@@ -17,7 +17,6 @@
 #include "apiPWP.h"
 #include "runtimeWrite.h"
 #include "pwpPlatform.h"
-#include <iostream>
 
 #include "CaePlugin.h"
 #include "CaeUnsGridModel.h"
@@ -44,35 +43,6 @@ matIdChar(const MaterialId matId)
     static const char idMap[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     return (matId < 0 || matId > 35) ? '?' : idMap[matId];
 }
-
-//
-// >JK: 1/2018: Old function, no longer needed
-// static MaterialId
-// maxMatId(const MaterialId id1, const MaterialId id2)
-// {
-    // Ignore zero mat id if a non-zero value is present
-
-//    MaterialId ret;
-//    if ((id1 > 0) && (id2 > 0)) {
-//        ret = std::max(id1, id2); // both are >0, max wins.
-//    }
-//    else if (id1 > 0) {
-//        ret = id1;
-//    }
-//    else if (id2 > 0) {
-//        ret = id2;
-//    }
-//    else if (0 == id1) {
-//        ret = id1;
-//    }
-//    else if (0 == id2) {
-//        ret = id2;
-//    }
-//    else {
-//        ret = MatUndefined; // not good?
-//    }
-//    return ret;
-// }
 
 
 template<typename T>
@@ -155,7 +125,7 @@ CaeUnsUMCPSEG::beginExport()
 PWP_BOOL
 CaeUnsUMCPSEG::write()
 {
-    return init() && writeHeader() && writeNodes() & writeFaces() &&
+    return init() && writeHeader() && writeNodes() && writeFaces() &&
         writeGeometry();
 }
 
@@ -283,7 +253,7 @@ CaeUnsUMCPSEG::writeNodes()
 {
     //         1         2         3         4
     //1234567890123456789012345678901234567890
-    //   7468     4          ***** NODES *****
+    //   7468     5          ***** NODES *****
     const PWP_UINT32 subType = 5; // indicates a POINTWISE generated file
     // changed subType to 5 in order for CPSEG to denote read changes
     rtFile_.writef("%7d %5d          ***** NODES *****\n",
@@ -423,14 +393,12 @@ CaeUnsUMCPSEG::streamBegin(const PWGM_BEGINSTREAM_DATA &data)
 
    Examine the edge's BC and its owner/neighbor VCs and push the appropriate
    material id and zone id values to each of the edge's nodes. The data is
-   pushed to each node with the other node as its neighbor. A lower valued zone
-   id will overwrite a higher zone id value. Except for material id 0, a lower
-   valued material id will overwrite a higher value. Material id 0 never
-   overwrites a higher value.
+   pushed to each node with the other node as its neighbor. A higher zone id
+   value will overwrite a lower zone id value.
 
    Once all edges have been processed, each node will have a final material and
-   zone id. The BC assigned values will have precedence over the VC assigned
-   values.
+   zone id. The BC assigned material and zone id values will have precedence
+   over the VC assigned material and zone id values.
 */
 PWP_UINT32
 CaeUnsUMCPSEG::streamFace(const PWGM_FACESTREAM_DATA &data)
@@ -496,17 +464,18 @@ CaeUnsUMCPSEG::pushPt(const PWP_UINT32 vPt, const PWP_UINT32 vNbor,
     NInfoIter it;
     const bool ret = getPoint(vPt, it, true);
     if (ret) {
-        it->second.nbors().push_back(vNbor);
+        NodeInfo &ni = it->second;
+        ni.nbors().push_back(vNbor);
         if (isBndry) {
-            it->second.setBndry();
+            ni.setBndry();
         }
         if (mzFromVC) {
-            it->second.setVCMaterial(matId);
-            it->second.setVCZone(zoneId);
+            ni.setVCMaterial(matId);
+            ni.setVCZone(zoneId);
         }
         else {
-            it->second.setBCMaterial(matId);
-            it->second.setBCZone(zoneId);
+            ni.setBCMaterial(matId);
+            ni.setBCZone(zoneId);
         }
     }
     return ret;
@@ -647,19 +616,19 @@ CaeUnsUMCPSEG::getIntorEdgeMatAndZone(const PWGM_FACESTREAM_DATA &data,
         getMatAndZone(nbor, nborMatId, nborZoneId);
         isGeomEdge = (nborMatId != matId) || (nborZoneId != zoneId);
         if (isGeomEdge) {
-            // if material is different, return highest ids
-            // and zone corresponding to higher material id
-            if (nborMatId != matId) {
-                matId = std::max(nborMatId, matId);
-                if (matId == nborMatId) {
-                    zoneId = nborZoneId;
-                }
-            }
-            // if material is the same and zone is different,
-            // return highest zone id
-            else {
+            // edge is between elements with different material and/or zone ids
+            if (nborMatId == matId) {
+                // The materials are the same. The zones must be different.
+                // Capture the max of the zone ids.
                 zoneId = std::max(nborZoneId, zoneId);
             }
+            else if (nborMatId > matId) {
+                // Capture larger nborMatId and its corresponding nborZoneId
+                matId = nborMatId;
+                zoneId = nborZoneId;
+            }
+            // else nborMatId < matId
+            //  matId and zoneId are good to go
         }
         mzFromVC = true;
         ret = true;

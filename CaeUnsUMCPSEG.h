@@ -2,7 +2,7 @@
  *
  * class CaeUnsUMCPSEG
  *
- * Copyright (c) 2012-2018 Pointwise, Inc.
+ * Copyright (c) 2012-2019 Pointwise, Inc.
  * All rights reserved.
  *
  * This sample Pointwise plugin is not supported by Pointwise, Inc.
@@ -49,8 +49,7 @@ const ZoneId        ZoneUndefined = UndefinedId;
 
 class ManagedId {
 public:
-    ManagedId(const bool preferPositiveIds = false) :
-        preferPositiveIds_(preferPositiveIds),
+    ManagedId() :
         id_(UndefinedId),
         hadConflict_(false)
     {
@@ -62,34 +61,24 @@ public:
 
     void setId(const IdType id)
     {
-        // In general, this objects captures the lowest id value that is >= 0.
-        // However, if preferPositiveIds_ is true, we want the lowest positive
-        // value to always replace a zero.
+        // This object captures the highest id value and historical info.
         if (UndefinedId == id) {
             // incoming id is undefined - skip it
         }
         else if (UndefinedId == id_) {
-            id_ = id; // capture first id even if zero
+            // Capture first valid id - no conflict here!
+            id_ = id;
         }
-        else if (preferPositiveIds_ && (0 == id)) {
-            // incoming id is zero - skip it
+        else if (id == id_) {
+            // incoming id is same as already captured id_ - no conflict here!
         }
-        else if (preferPositiveIds_ && (0 == id_)) {
-            // A zero was captured as first value above. The incoming id is > 0.
-            // So, id superceeds the cached zero. The only way id_ will stay
-            // zero is if all calls pass in zeros (which is valid).
-            id_ = id; // capture first positive, nonzero id
+        else { // id != id_
             hadConflict_ = true;
+            if (id > id_) {
+                // capture larger incoming id value
+                id_ = id;
+            }
         }
-        else if (id > id_) {
-            id_ = id; // cature the lowest id
-            hadConflict_ = true;
-        }
-// >JK: 1/2018 Changing the logic here to have the highest MatId have the ownership
-        else if (id < id_) {
-            hadConflict_ = true;
-        }
-        // else id == id_ // a NOP
     }
 
     IdType getId() const
@@ -105,7 +94,6 @@ public:
 
 private:
 
-    bool    preferPositiveIds_;
     IdType  id_;
     bool    hadConflict_;
 };
@@ -120,8 +108,8 @@ public:
 
     NodeInfo() :
         isBndry_(false),
-        elemMaterial_(true),
-        edgeMaterial_(true),
+        elemMaterial_(),
+        edgeMaterial_(),
         elemZone_(),
         edgeZone_(),
         nbors_()
